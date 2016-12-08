@@ -65,50 +65,54 @@ def get_rating_and_voters(film_titles):
 def get_film_info(film_titles,
                   num_of_cinemas,
                   rating,
-                  voters):
-    film_info = zip(film_titles, num_of_cinemas, voters, rating)
+                  voters
+                  ):
+    film_info = []
+    for item in range(len(film_titles)):
+        film_info.append({'title': film_titles[item],
+                          'num_of_cinemas': num_of_cinemas[item],
+                          'voters': voters[item],
+                          'rating': rating[item]
+                          }
+                         )
     return film_info
 
 
 def get_sorted_film(film_info):
-    if args.rating:
-        sorted_film_info = sorted(film_info, key=lambda i: i[3], reverse=True)
-    elif args.cinemas:
-        sorted_film_info = sorted(film_info, key=lambda i: i[1], reverse=True)
+    if args.cinemas:
+        sorted_film_info = sorted(film_info, key=lambda i: i['num_of_cinemas'])
+    else:
+        sorted_film_info = sorted(film_info, key=lambda i: i['rating'])
+    sorted_film_info.reverse()
     return sorted_film_info
 
 
 def output_top_film_to_console(sorted_film_info):
     top_films = 10
-    if args.rating:
-        print('Сортировка по рейтингу на www.kinopoisk.ru')
-        for item in range(top_films):
-            print(sorted_film_info[item][0], '-', sorted_film_info[item][3])
     if args.cinemas:
         print('Сортировка по количеству кинотеатров')
         for item in range(top_films):
-            print(sorted_film_info[item][0], '-', sorted_film_info[item][1])
+            print(sorted_film_info[item]['title'])
+    else:
+        print('Сортировка по рейтингу на www.kinopoisk.ru')
+        for item in range(top_films):
+            print(sorted_film_info[item]['title'])
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(add_help=True)
-    parser.add_argument('-r', '--rating', action="store_true",
-                        help='Сортировка по рейтингу')
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-h', '--help', action='help',
+                        help='show this message and exit')
     parser.add_argument('-c', '--cinemas', action="store_true",
                         help='Сортировка по количеству кинотеатров')
     args = parser.parse_args()
-    if not args.rating and not args.cinemas:
-        print('Необходимо указать ключ сортировки. Читай README.md')
-        exit()
-    print('парсим afisha.ru')
     afisha_response = fetch_afisha_page()
     film_titles, num_of_cinemas = parse_afisha_list(afisha_response)
-    print('получаем данные с kinopoisk.ru')
     rating, voters = get_rating_and_voters(film_titles)
     film_info = get_film_info(film_titles,
                               num_of_cinemas,
                               rating,
-                              voters)
-    print('обработка результатов')
+                              voters
+                              )
     sorted_film_info = get_sorted_film(film_info)
     output_top_film_to_console(sorted_film_info)
