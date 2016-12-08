@@ -1,9 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
-import time
 import random
 import argparse
-
+import time
 
 def fetch_afisha_page():
     afisha_url = 'http://www.afisha.ru/msk/schedule_cinema/'
